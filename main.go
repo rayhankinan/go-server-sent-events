@@ -29,6 +29,7 @@ func main() {
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
+	defer rdb.Close()
 
 	go func() {
 		pubsub := rdb.PSubscribe(ctx, "sse:*")
