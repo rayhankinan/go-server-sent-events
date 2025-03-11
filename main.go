@@ -45,19 +45,24 @@ func main() {
 					continue
 				}
 
-				server.Publish(streamID, &sse.Event{
+				if ok := server.TryPublish(streamID, &sse.Event{
 					Data: []byte(message.Payload),
-				})
+				}); !ok {
+					e.Logger.Errorf("No subscriber for stream ID: %s", streamID)
+					continue
+				}
+
+				e.Logger.Printf("Published into stream ID: %s, payload: %s", streamID, message.Payload)
 			}
 		}
 	}()
 
 	e.GET("/subscribe", func(c echo.Context) error {
-		e.Logger.Infof("The client is connected: %v\n", c.RealIP())
+		e.Logger.Printf("The client is connected: %v\n", c.RealIP())
 
 		go func() {
 			<-c.Request().Context().Done()
-			e.Logger.Infof("The client is disconnected: %v\n", c.RealIP())
+			e.Logger.Printf("The client is disconnected: %v\n", c.RealIP())
 		}()
 
 		server.ServeHTTP(c.Response(), c.Request())
