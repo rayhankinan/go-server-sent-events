@@ -15,24 +15,23 @@ import (
 
 func main() {
 	ctx := context.Background()
-	streamID := "pubsub"
 	eventTTL := 5 * time.Second
+	autostream := true
 
 	e := echo.New()
 	defer e.Close()
 
 	server := sse.New()
 	server.EventTTL = eventTTL
+	server.AutoStream = autostream
 	defer server.Close()
 
 	rdb := redis.NewClient(&redis.Options{
 		Addr: "localhost:6379",
 	})
 
-	server.CreateStream(streamID)
-
 	go func() {
-		pubsub := rdb.Subscribe(ctx, streamID)
+		pubsub := rdb.PSubscribe(ctx, "sse:*")
 		defer pubsub.Close()
 
 		for {
@@ -40,6 +39,12 @@ func main() {
 			case <-ctx.Done():
 				return
 			case message := <-pubsub.Channel():
+				var streamID string
+				if _, err := fmt.Sscanf(message.Channel, "sse:%s", &streamID); err != nil {
+					e.Logger.Errorf("Error while parsing the channel: %s, err: %s", message.Channel, err)
+					continue
+				}
+
 				server.Publish(streamID, &sse.Event{
 					Data: []byte(message.Payload),
 				})
@@ -71,7 +76,8 @@ func main() {
 			return c.JSON(http.StatusInternalServerError, fmt.Sprintf("Error while minifying the body: %s", err))
 		}
 
-		if err := rdb.Publish(ctx, streamID, string(minifiedJSON)).Err(); err != nil {
+		streamID := c.QueryParam("stream")
+		if err := rdb.Publish(ctx, fmt.Sprintf("sse:%s", streamID), string(minifiedJSON)).Err(); err != nil {
 			return c.JSON(http.StatusInternalServerError, fmt.Sprintf("Error while publishing: %s", err))
 		}
 
