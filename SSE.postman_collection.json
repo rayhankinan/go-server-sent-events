@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "fd933cc7-5a97-48d1-9258-45a5106feab7",
+		"name": "SSE",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "16217278"
+	},
+	"item": [
+		{
+			"name": "Subscribe",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "localhost:8080/subscribe?stream=pubsub",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"subscribe"
+					],
+					"query": [
+						{
+							"key": "stream",
+							"value": "pubsub"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Publish",
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"test\": 1\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "localhost:8080/publish?stream=pubsub",
+					"host": [
+						"localhost"
+					],
+					"port": "8080",
+					"path": [
+						"publish"
+					],
+					"query": [
+						{
+							"key": "stream",
+							"value": "pubsub"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
