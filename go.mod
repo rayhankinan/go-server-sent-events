@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/labstack/echo v3.3.10+incompatible
 	github.com/r3labs/sse/v2 v2.10.0
-	github.com/redis/go-redis/v9 v9.7.1
+	github.com/redis/go-redis/v9 v9.7.3
 )
 
 require (
